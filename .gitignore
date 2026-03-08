@@ -12,3 +12,6 @@ wheels/
 # Other data
 legal_data/
 chroma_langchain_db/
+
+# Envs
+.env
