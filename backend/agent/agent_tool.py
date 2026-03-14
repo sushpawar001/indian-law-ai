@@ -14,12 +14,20 @@ prompt = SystemMessage(system_prompt_with_context_tool)
 agent = create_agent(llm, tools, system_prompt=prompt)
 
 
-def run_agent_with_tool(user_input):
+def run_agent_with_tool(user_input: str) -> str:
     obj = {"messages": [{"role": "user", "content": user_input}]}
     response = agent.invoke(obj)
     final_content = response["messages"][-1].content
 
-    return final_content
+    return final_content.text if final_content else ""
+
+def run_agent_with_tool_memory(messages: list[dict]) -> str:
+    print("messages", messages)
+    obj = {"messages": messages}
+    response = agent.invoke(obj)
+    final_content = response["messages"][-1].content
+
+    return final_content if final_content else ""
 
 
 def test_agent():
