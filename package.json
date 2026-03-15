@@ -1,0 +1,24 @@
+{
+  "name": "law-rag",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/sushpawar001/indian-law-ai#readme",
+  "bugs": {
+    "url": "https://github.com/sushpawar001/indian-law-ai/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sushpawar001/indian-law-ai.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "backend": "cd backend && uv run fastapi dev main.py",
+    "frontend": "cd frontend && pnpm run dev"
+  }
+}

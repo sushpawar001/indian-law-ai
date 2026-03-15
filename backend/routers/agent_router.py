@@ -6,7 +6,6 @@ from sqlalchemy import select
 from db.postgre_db import get_db
 from db.models import ChatThread, ThreadMessage, ThreadMessageRole
 from pydantic import BaseModel
-from uuid import uuid4
 
 agent_router = APIRouter()
 
@@ -15,17 +14,29 @@ class ThreadInput(BaseModel):
     user_input: str
 
 
+class MessageAbstract(BaseModel):
+    message_role: str
+    message_id: str
+    content: str
+
+
+class ThreadMessageOutput(BaseModel):
+    user_message_id: str
+    ai_message: MessageAbstract
+
+
 # Send message in thread
 @agent_router.post("/v1/thread-message")
 async def send_message_in_thread(
     user_input: ThreadInput,
     thread_id: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-):
+) -> ThreadMessageOutput:
     messages: list[dict] = []
     if thread_id:
         thread = await db.get(ChatThread, thread_id)
         if thread:
+            print(f"[DEBUG] Thread found")
             existing_messages_cursor = await db.execute(
                 select(ThreadMessage).where(ThreadMessage.thread_id == thread_id)
             )
@@ -35,9 +46,11 @@ async def send_message_in_thread(
                     {"role": m.message_role, "content": m.content}
                     for m in existing_messages
                 ]
-                if messages
+                if existing_messages
                 else []
             )
+            print(existing_messages)
+            print(messages)
         else:
             thread = ChatThread()
             db.add(thread)
@@ -70,7 +83,14 @@ async def send_message_in_thread(
     db.add_all([user_message, ai_message])
     await db.commit()
 
-    return llm_response
+    return ThreadMessageOutput(
+        user_message_id=str(user_message.id),
+        ai_message=MessageAbstract(
+            message_role="ai",
+            message_id=str(ai_message.id),
+            content=llm_response,
+        ),
+    )
 
 
 # get all threads
