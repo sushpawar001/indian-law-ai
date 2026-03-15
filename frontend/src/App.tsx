@@ -4,6 +4,7 @@ import MessageThreadScreen from "./components/MessageThreadScreen";
 import ChatInput from "./components/ChatInput";
 import DefaultThreadScreen from "./components/DefaultThreadScreen";
 import type { ThreadMessage } from "./types/index";
+import { MoreVertical, Trash2 } from "lucide-react";
 interface ThreadsData {
     thread_id: string;
 }
@@ -109,13 +110,31 @@ function App() {
                     {threads.length > 0 &&
                         threads.map((thread) => (
                             <div
-                                className="py-2.5 px-4 rounded-xl hover:bg-clay-300 cursor-pointer truncate transition font-medium"
                                 key={thread.thread_id}
-                                onClick={() => {
-                                    setSelectedThread(thread.thread_id);
-                                }}
+                                className="group relative flex items-center justify-between py-2.5 px-4 rounded-xl hover:bg-clay-300 cursor-pointer transition font-medium"
+                                onClick={() =>
+                                    setSelectedThread(thread.thread_id)
+                                }
                             >
-                                Thread {thread.thread_id}
+                                <span className="truncate flex-1">
+                                    Thread {thread.thread_id}
+                                </span>
+
+                                <div className="relative">
+                                    <button className="p-1 hover:bg-clay-400 rounded-md transition opacity-0 group-hover:opacity-100">
+                                        <MoreVertical
+                                            size={16}
+                                            className="text-stone-500"
+                                        />
+                                    </button>
+
+                                    <div className="absolute right-0 mt-1 w-32 bg-white border border-stone-200 rounded-lg shadow-lg py-1 z-10 hidden group-focus-within:block">
+                                        <button className="w-full flex items-center px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition gap-2 cursor-pointer">
+                                            <Trash2 size={14} />
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         ))}
                 </div>
