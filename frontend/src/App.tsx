@@ -16,6 +16,7 @@ export interface MessageAbstract {
 
 export interface ThreadMessageOutput {
     user_message_id: string;
+    thread_id: string;
     ai_message: MessageAbstract;
 }
 
@@ -77,6 +78,9 @@ function App() {
         };
         console.log("ai response", data);
         setSelectedThreadMessages((prev) => [...prev, newData]);
+        if (selectedThread === null) {
+            setThreads((prev) => [...prev, { thread_id: data.thread_id }]);
+        }
     };
 
     return (
@@ -89,9 +93,10 @@ function App() {
                 </div>
                 <div className="px-4">
                     <button
-                        className="w-full py-3 rounded-2xl bg-charcoal-900 text-white hover:bg-black text-sm font-medium transition shadow-md"
+                        className="w-full py-3 rounded-2xl bg-charcoal-900 text-white hover:bg-black text-sm font-medium transition shadow-md cursor-pointer"
                         onClick={() => {
                             setSelectedThread(null);
+                            setSelectedThreadMessages([]);
                         }}
                     >
                         + New Inquiry
@@ -117,7 +122,7 @@ function App() {
             </aside>
 
             <main className="flex-1 bg-clay-50 rounded-3xl shadow-sm flex flex-col h-full relative border border-clay-400 overflow-hidden">
-                {selectedThread && selectedThreadMessages.length > 0 ? (
+                {selectedThreadMessages.length > 0 ? (
                     <MessageThreadScreen messages={selectedThreadMessages} />
                 ) : (
                     <DefaultThreadScreen />

@@ -19,7 +19,7 @@ export default function ChatInput({
                     }}
                 ></textarea>
                 <button
-                    className="p-3 bg-charcoal-900 text-white rounded-xl hover:bg-black transition"
+                    className="p-3 bg-charcoal-900 text-white rounded-xl hover:bg-black transition cursor-pointer"
                     onClick={() => {
                         sendMessage(userMessage);
                         setUserMessage("");

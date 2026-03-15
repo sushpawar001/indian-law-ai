@@ -4,7 +4,7 @@ DATABASE_URL = "postgresql+asyncpg://postgres:abcd1234@localhost:5432/law_agent"
 
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True
+    # echo=True
 )
 
 AsyncSessionLocal = async_sessionmaker(

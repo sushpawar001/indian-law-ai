@@ -25,7 +25,7 @@ const ChatMessage = ({
                 className={`max-w-[85%] md:max-w-[75%] px-5 py-3.5 text-sm md:text-base leading-relaxed ${
                     isAi
                         ? "bg-white text-stone-800 rounded-2xl rounded-tl-sm border border-clay-300 shadow-sm text-left"
-                        : "bg-charcoal-900 text-white rounded-2xl rounded-tr-sm shadow-md text-right"
+                        : "bg-charcoal-900 text-white rounded-2xl rounded-tr-sm shadow-md text-left"
                 }`}
             >
                 <p>{message}</p>

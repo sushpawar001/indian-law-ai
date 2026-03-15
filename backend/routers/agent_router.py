@@ -22,6 +22,7 @@ class MessageAbstract(BaseModel):
 
 class ThreadMessageOutput(BaseModel):
     user_message_id: str
+    thread_id: str
     ai_message: MessageAbstract
 
 
@@ -79,7 +80,6 @@ async def send_message_in_thread(
         message_role=ThreadMessageRole.ai,
         content=llm_response,
     )
-    db.add(user_message)
     db.add_all([user_message, ai_message])
     await db.commit()
 
@@ -90,6 +90,7 @@ async def send_message_in_thread(
             message_id=str(ai_message.id),
             content=llm_response,
         ),
+        thread_id=str(thread.thread_id)
     )
 
 
