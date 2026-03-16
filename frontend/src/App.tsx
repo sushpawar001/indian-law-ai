@@ -27,6 +27,8 @@ function App() {
     const [selectedThreadMessages, setSelectedThreadMessages] = useState<
         ThreadMessage[]
     >([]);
+    const [isWaitingAiResponse, setIsWaitingAiResponse] =
+        useState<boolean>(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -63,6 +65,7 @@ function App() {
             ? `http://127.0.0.1:8000/v1/thread-message?thread_id=${selectedThread}`
             : "http://127.0.0.1:8000/v1/thread-message";
 
+        setIsWaitingAiResponse(true);
         const res = await fetch(url, {
             method: "POST",
             headers: {
@@ -70,6 +73,7 @@ function App() {
             },
             body: JSON.stringify({ user_input: content }),
         });
+        setIsWaitingAiResponse(false);
         const data: ThreadMessageOutput = await res.json();
         const newData: ThreadMessage = {
             id: data.ai_message.message_id,
@@ -142,7 +146,10 @@ function App() {
 
             <main className="flex-1 bg-clay-50 rounded-3xl shadow-sm flex flex-col h-full relative border border-clay-400 overflow-hidden">
                 {selectedThreadMessages.length > 0 ? (
-                    <MessageThreadScreen messages={selectedThreadMessages} />
+                    <MessageThreadScreen
+                        messages={selectedThreadMessages}
+                        isWaitingAiResponse={isWaitingAiResponse}
+                    />
                 ) : (
                     <DefaultThreadScreen />
                 )}
