@@ -31,6 +31,7 @@ class ThreadMessageRole(str, Enum):
 class ChatThread(Base):
     __tablename__ = "threads"
 
+    thread_name = Column(String, nullable=False)
     thread_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     messages = relationship(

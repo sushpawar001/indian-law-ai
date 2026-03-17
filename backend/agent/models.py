@@ -12,8 +12,8 @@ llm = ChatOpenAI(
     model="stepfun/step-3.5-flash:free",
     api_key=OPEN_ROUTER_KEY,  # type: ignore
     base_url="https://openrouter.ai/api/v1",
-    temperature=0.2,
-    max_completion_tokens=2000,
+    temperature=0.3,
+    max_completion_tokens=3000,
 )
 
 # llm = ChatGoogleGenerativeAI(

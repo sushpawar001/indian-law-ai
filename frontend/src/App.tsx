@@ -7,6 +7,7 @@ import type { ThreadMessage } from "./types/index";
 import { MoreVertical, Trash2 } from "lucide-react";
 interface ThreadsData {
     thread_id: string;
+    thread_name: string;
 }
 
 export interface MessageAbstract {
@@ -18,6 +19,7 @@ export interface MessageAbstract {
 export interface ThreadMessageOutput {
     user_message_id: string;
     thread_id: string;
+    thread_name: string;
     ai_message: MessageAbstract;
 }
 
@@ -84,7 +86,32 @@ function App() {
         console.log("ai response", data);
         setSelectedThreadMessages((prev) => [...prev, newData]);
         if (selectedThread === null) {
-            setThreads((prev) => [...prev, { thread_id: data.thread_id }]);
+            setThreads((prev) => [
+                ...prev,
+                { thread_id: data.thread_id, thread_name: data.thread_name },
+            ]);
+        }
+    };
+
+    const deleteThread = async (thread_id: string) => {
+        console.log("deleting thread", thread_id);
+        const res = await fetch(
+            `http://127.0.0.1:8000/v1/thread?thread_id=${thread_id}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            },
+        );
+        const data = await res.json();
+        console.log("delete response", data);
+        setThreads((prev) =>
+            prev.filter((thread) => thread.thread_id !== thread_id),
+        );
+        if (selectedThread === thread_id) {
+            setSelectedThread(null);
+            setSelectedThreadMessages([]);
         }
     };
 
@@ -107,7 +134,7 @@ function App() {
                         + New Inquiry
                     </button>
                 </div>
-                <div className="flex-1 overflow-y-auto px-4 mt-8 space-y-2 text-sm text-stone-600">
+                <div className="flex-1 overflow-y-auto px-4 mt-8 space-y-1 text-sm text-stone-600">
                     <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 ml-2">
                         History
                     </p>
@@ -115,13 +142,13 @@ function App() {
                         threads.map((thread) => (
                             <div
                                 key={thread.thread_id}
-                                className="group relative flex items-center justify-between py-2.5 px-4 rounded-xl hover:bg-clay-300 cursor-pointer transition font-medium"
+                                className={`group relative flex items-center justify-between py-1.5 px-2 rounded-xl hover:bg-clay-300 cursor-pointer transition font-medium ${selectedThread === thread.thread_id ? "bg-clay-300" : "bg-transparent"}`}
                                 onClick={() =>
                                     setSelectedThread(thread.thread_id)
                                 }
                             >
                                 <span className="truncate flex-1">
-                                    Thread {thread.thread_id}
+                                    {thread.thread_name}
                                 </span>
 
                                 <div className="relative">
@@ -133,7 +160,14 @@ function App() {
                                     </button>
 
                                     <div className="absolute right-0 mt-1 w-32 bg-white border border-stone-200 rounded-lg shadow-lg py-1 z-10 hidden group-focus-within:block">
-                                        <button className="w-full flex items-center px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition gap-2 cursor-pointer">
+                                        <button
+                                            className="w-full flex items-center px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition gap-2 cursor-pointer"
+                                            onClick={async () => {
+                                                await deleteThread(
+                                                    thread.thread_id,
+                                                );
+                                            }}
+                                        >
                                             <Trash2 size={14} />
                                             Delete
                                         </button>

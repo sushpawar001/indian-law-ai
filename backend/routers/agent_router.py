@@ -23,6 +23,7 @@ class MessageAbstract(BaseModel):
 class ThreadMessageOutput(BaseModel):
     user_message_id: str
     thread_id: str
+    thread_name: str
     ai_message: MessageAbstract
 
 
@@ -34,6 +35,8 @@ async def send_message_in_thread(
     db: AsyncSession = Depends(get_db),
 ) -> ThreadMessageOutput:
     messages: list[dict] = []
+    create_new_thread = False
+    thread = None
     if thread_id:
         thread = await db.get(ChatThread, thread_id)
         if thread:
@@ -53,32 +56,35 @@ async def send_message_in_thread(
             print(existing_messages)
             print(messages)
         else:
-            thread = ChatThread()
-            db.add(thread)
-            await db.commit()
-            await db.refresh(thread)
-            print(f"[DEBUG] Thread created {thread.thread_id}")
-
+            print(f"[DEBUG] Thread not found, creating new thread")
+            create_new_thread = True
     else:
-        thread = ChatThread()
+        print(f"[DEBUG] No thread_id provided, creating new thread")
+        create_new_thread = True
+
+    messages.append({"role": "user", "content": user_input.user_input})
+
+    llm_response = await run_agent_with_tool_memory(
+        messages, get_thread_title=create_new_thread
+    )
+
+    if create_new_thread:
+        thread_name = llm_response.get("thread_title", "New Thread")
+        thread = ChatThread(thread_name=thread_name)
         db.add(thread)
         await db.commit()
         await db.refresh(thread)
         print(f"[DEBUG] Thread created {thread.thread_id}")
 
-    messages.append({"role": "user", "content": user_input.user_input})
-
-    llm_response = run_agent_with_tool_memory(messages)
-
     user_message = ThreadMessage(
-        thread_id=thread.thread_id,
+        thread_id=thread.thread_id if thread else thread_id,
         message_role=ThreadMessageRole.user,
         content=user_input.user_input,
     )
     ai_message = ThreadMessage(
-        thread_id=thread.thread_id,
+        thread_id=thread.thread_id if thread else thread_id,
         message_role=ThreadMessageRole.ai,
-        content=llm_response,
+        content=llm_response.get("response", ""),
     )
     db.add_all([user_message, ai_message])
     await db.commit()
@@ -88,9 +94,10 @@ async def send_message_in_thread(
         ai_message=MessageAbstract(
             message_role="ai",
             message_id=str(ai_message.id),
-            content=llm_response,
+            content=llm_response.get("response", ""),
         ),
-        thread_id=str(thread.thread_id)
+        thread_id=str(thread.thread_id) if thread else thread_id,
+        thread_name=thread.thread_name if thread else "New Thread",
     )
 
 

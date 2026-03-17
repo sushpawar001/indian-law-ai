@@ -1,4 +1,3 @@
-import React from "react";
 import ChatMessage from "./ChatMessage";
 import LoadingChatMessage from "./LoadingChatMessage";
 import type { ThreadMessage } from "./../types/index";
@@ -11,7 +10,7 @@ export default function MessageThreadScreen({
     isWaitingAiResponse: boolean;
 }) {
     return (
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
+        <div className="flex-1 overflow-y-auto p-4 md:px-8 space-y-8">
             <div className="max-w-3xl mx-auto flex flex-col items-center text-center mt-12">
                 {messages.map((message) => (
                     <ChatMessage

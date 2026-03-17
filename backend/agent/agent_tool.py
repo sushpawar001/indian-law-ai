@@ -6,28 +6,73 @@ from agent.prompts import system_prompt_with_context_tool
 from agent.tools import retrieve_context, retrieve_search_results
 import pandas as pd
 
+from pydantic import BaseModel, Field
+
+
+class LegalResponse(BaseModel):
+    answer: str = Field(
+        description="Answer to the user's query based on the retrieved context and search results. Strictly limit the response to under 200 words"
+    )
+    thread_title: str = Field(description="Title of the thread. Max 5 words.")
+
+
+from langchain_core.output_parsers import PydanticOutputParser
+
+output_parser = PydanticOutputParser(pydantic_object=LegalResponse)
 
 # NOTE: This agent follows tool approch
 tools = [retrieve_context, retrieve_search_results]
 
 prompt = SystemMessage(system_prompt_with_context_tool)
-agent = create_agent(llm, tools, system_prompt=prompt)
+message_agent = create_agent(llm, tools, system_prompt=prompt)
+thread_agent = create_agent(
+    llm,
+    tools,
+    system_prompt=SystemMessage(
+        system_prompt_with_context_tool
+        + "MUST return a JSON object with the following format: "
+        + output_parser.get_format_instructions()
+    ),
+    response_format=LegalResponse,
+)
 
 
 def run_agent_with_tool(user_input: str) -> str:
     obj = {"messages": [{"role": "user", "content": user_input}]}
-    response = agent.invoke(obj)
+    response = message_agent.invoke(obj)
     final_content = response["messages"][-1].content
 
     return final_content.text if final_content else ""
 
-def run_agent_with_tool_memory(messages: list[dict]) -> str:
-    print("messages", messages)
-    obj = {"messages": messages}
-    response = agent.invoke(obj)
-    final_content = response["messages"][-1].content
 
-    return final_content if final_content else ""
+async def run_agent_with_tool_memory(
+    messages: list[dict],
+    get_thread_title: bool = True,
+) -> dict:
+    obj = {"messages": messages}
+
+    if get_thread_title:
+        print("Invoking thread agent")
+        response = await thread_agent.ainvoke(obj)
+
+        final_content = response["messages"][-1].content
+        print("Final content from thread agent:", final_content)
+        try:
+            final_content = output_parser.parse(final_content)
+        except Exception as e:
+            print("Error parsing output:", e)
+
+        return {
+            "response": final_content.answer if final_content else "",
+            "thread_title": final_content.thread_title if final_content else "",
+        }
+
+    else:
+        print("Invoking message agent")
+        response = await message_agent.ainvoke(obj)
+        final_content = response["messages"][-1].content
+
+        return {"response": final_content if final_content else ""}
 
 
 def test_agent():
