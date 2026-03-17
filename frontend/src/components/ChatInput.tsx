@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SendHorizontal } from "lucide-react";
 
 export default function ChatInput({
     sendMessage,
+    message,
 }: {
     sendMessage: CallableFunction;
+    message: string;
 }) {
-    const [userMessage, setUserMessage] = useState<string>("");
+    const [userMessage, setUserMessage] = useState<string>(message);
+
+    useEffect(() => {
+        setUserMessage(message);
+    }, [message]);
+
     return (
         <div className="absolute bottom-6 left-0 w-full px-4 md:px-12">
             <div className="max-w-3xl mx-auto relative bg-white rounded-2xl shadow-xl border border-clay-300 p-2 flex items-end">
@@ -26,7 +33,7 @@ export default function ChatInput({
                         setUserMessage("");
                     }}
                 >
-                    <SendHorizontal size={22}/>
+                    <SendHorizontal size={22} />
                 </button>
             </div>
         </div>

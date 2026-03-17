@@ -32,6 +32,12 @@ function App() {
     const [isWaitingAiResponse, setIsWaitingAiResponse] =
         useState<boolean>(false);
 
+    const [message, setMessage] = useState<string>("");
+
+    const setMessageFromInput = (input: string) => {
+        setMessage(input);
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetch("http://127.0.0.1:8000/v1/threads");
@@ -185,9 +191,11 @@ function App() {
                         isWaitingAiResponse={isWaitingAiResponse}
                     />
                 ) : (
-                    <DefaultThreadScreen />
+                    <DefaultThreadScreen
+                        setMessageFromInput={setMessageFromInput}
+                    />
                 )}
-                <ChatInput sendMessage={sendMessage} />
+                <ChatInput sendMessage={sendMessage} message={message} />
             </main>
         </div>
     );

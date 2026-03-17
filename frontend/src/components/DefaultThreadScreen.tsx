@@ -1,6 +1,10 @@
 import React from "react";
 
-export default function DefaultThreadScreen() {
+export default function DefaultThreadScreen({
+    setMessageFromInput,
+}: {
+    setMessageFromInput: (input: string) => void;
+}) {
     return (
         <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
             <div className="max-w-2xl mx-auto flex flex-col items-center text-center mt-12">
@@ -16,7 +20,14 @@ export default function DefaultThreadScreen() {
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 mt-10 w-full">
-                    <button className="p-4 border border-clay-300 rounded-2xl text-left hover:bg-white hover:shadow-sm transition group">
+                    <button
+                        className="p-4 border border-clay-300 rounded-2xl text-left hover:bg-white hover:shadow-sm transition group"
+                        onClick={() =>
+                            setMessageFromInput(
+                                "What are the grounds for eviction of a tenant under Indian law?",
+                            )
+                        }
+                    >
                         <p className="text-sm font-semibold text-stone-800">
                             Draft a notice &rarr;
                         </p>
@@ -24,7 +35,14 @@ export default function DefaultThreadScreen() {
                             Tenant eviction under state law
                         </p>
                     </button>
-                    <button className="p-4 border border-clay-300 rounded-2xl text-left hover:bg-white hover:shadow-sm transition group">
+                    <button
+                        className="p-4 border border-clay-300 rounded-2xl text-left hover:bg-white hover:shadow-sm transition group"
+                        onClick={() =>
+                            setMessageFromInput(
+                                "Explain the difference between anticipatory bail and regular bail in Indian law.",
+                            )
+                        }
+                    >
                         <p className="text-sm font-semibold text-stone-800">
                             Explain a concept &rarr;
                         </p>
