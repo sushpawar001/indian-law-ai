@@ -5,6 +5,8 @@ import ChatInput from "./components/ChatInput";
 import DefaultThreadScreen from "./components/DefaultThreadScreen";
 import type { ThreadMessage } from "./types/index";
 import { MoreVertical, Trash2 } from "lucide-react";
+import { API_URL } from "../constants";
+
 interface ThreadsData {
     thread_id: string;
     thread_name: string;
@@ -40,7 +42,7 @@ function App() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetch("http://127.0.0.1:8000/v1/threads");
+            const data = await fetch(`${API_URL}/v1/threads`);
             const jData = await data.json();
             setThreads(jData);
         };
@@ -51,7 +53,7 @@ function App() {
         const fetchThreadMessages = async () => {
             if (selectedThread) {
                 const data = await fetch(
-                    `http://127.0.0.1:8000/v1/messages?thread_id=${selectedThread}`,
+                    `${API_URL}/v1/messages?thread_id=${selectedThread}`,
                 );
                 const jData = await data.json();
                 setSelectedThreadMessages(jData);
@@ -70,8 +72,8 @@ function App() {
         setSelectedThreadMessages((prev) => [...prev, msg]);
         console.log("sending message");
         const url = selectedThread
-            ? `http://127.0.0.1:8000/v1/thread-message?thread_id=${selectedThread}`
-            : "http://127.0.0.1:8000/v1/thread-message";
+            ? `${API_URL}/v1/thread-message?thread_id=${selectedThread}`
+            : `${API_URL}/v1/thread-message`;
 
         setIsWaitingAiResponse(true);
         const res = await fetch(url, {
@@ -101,15 +103,12 @@ function App() {
 
     const deleteThread = async (thread_id: string) => {
         console.log("deleting thread", thread_id);
-        const res = await fetch(
-            `http://127.0.0.1:8000/v1/thread?thread_id=${thread_id}`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+        const res = await fetch(`${API_URL}/v1/thread?thread_id=${thread_id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
             },
-        );
+        });
         const data = await res.json();
         console.log("delete response", data);
         setThreads((prev) =>

@@ -158,7 +158,9 @@ async def delete_message(
     message_id: str,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(ChatThread).where(ThreadMessage.id == message_id))
+    result = await db.execute(
+        select(ThreadMessage).where(ThreadMessage.id == message_id)
+    )
     message = result.scalar_one_or_none()
 
     if not message:

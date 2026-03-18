@@ -23,6 +23,7 @@ dependencies = [
     "pyarrow>=23.0.1",
     "pydantic-settings>=2.13.1",
     "pypdf>=6.7.2",
+    "python-dotenv>=1.2.1",
     "sentence-transformers>=5.2.3",
     "sqlalchemy>=2.0.46",
 ]
