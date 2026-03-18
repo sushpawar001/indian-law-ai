@@ -6,6 +6,7 @@ import DefaultThreadScreen from "./components/DefaultThreadScreen";
 import type { ThreadMessage } from "./types/index";
 import { MoreVertical, Trash2 } from "lucide-react";
 import { API_URL } from "../constants";
+import axios from "axios";
 
 interface ThreadsData {
     thread_id: string;
@@ -42,9 +43,8 @@ function App() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetch(`${API_URL}/v1/threads`);
-            const jData = await data.json();
-            setThreads(jData);
+            const data = await axios.get(`${API_URL}/v1/threads`);
+            setThreads(data.data);
         };
         fetchData();
     }, []);
@@ -52,11 +52,10 @@ function App() {
     useEffect(() => {
         const fetchThreadMessages = async () => {
             if (selectedThread) {
-                const data = await fetch(
+                const data = await axios.get(
                     `${API_URL}/v1/messages?thread_id=${selectedThread}`,
                 );
-                const jData = await data.json();
-                setSelectedThreadMessages(jData);
+                setSelectedThreadMessages(data.data);
             }
         };
         fetchThreadMessages();
@@ -76,15 +75,9 @@ function App() {
             : `${API_URL}/v1/thread-message`;
 
         setIsWaitingAiResponse(true);
-        const res = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ user_input: content }),
-        });
+        const res = await axios.post(url, { user_input: content });
         setIsWaitingAiResponse(false);
-        const data: ThreadMessageOutput = await res.json();
+        const data: ThreadMessageOutput = res.data;
         const newData: ThreadMessage = {
             id: data.ai_message.message_id,
             message_role: data.ai_message.message_role,
@@ -103,14 +96,10 @@ function App() {
 
     const deleteThread = async (thread_id: string) => {
         console.log("deleting thread", thread_id);
-        const res = await fetch(`${API_URL}/v1/thread?thread_id=${thread_id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-        const data = await res.json();
-        console.log("delete response", data);
+        const res = await axios.delete(
+            `${API_URL}/v1/thread?thread_id=${thread_id}`,
+        );
+        console.log("delete response", res.data);
         setThreads((prev) =>
             prev.filter((thread) => thread.thread_id !== thread_id),
         );
